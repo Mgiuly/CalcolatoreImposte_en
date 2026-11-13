@@ -1,594 +1,609 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giuliato&Battistin | Italy Property Purchase Tax Calculator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>try{if(window.self!==window.top)document.documentElement.classList.add("embedded")}catch(e){document.documentElement.classList.add("embedded")}</script>
+    <title>Italy Property Purchase Tax Calculator - Giuliato&amp;Battistin</title>
+    <meta name="description" content="Estimate the taxes on buying a home in Italy: VAT, registration, mortgage and cadastral tax, first or second home, with the preliminary contract. Free.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Import Font (from Style Guidelines) --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        /* --- Variabili Colori e Stile (da Stile guidelines.txt) --- */
         :root {
-            --primary-color: #6366F1;
-            --primary-hover-color: #4f52e4;
-            --whatsapp-color: #25D366;
-            --whatsapp-hover-color: #1ebe58;
-            --error-color-text: #991b1b;
-            --error-color-bg: #fee2e2;
-            --error-color-border: #fca5a5;
-            --warning-color-text: #92400e;
-            --warning-color-bg: #fef3c7;
-            --warning-color-border: #fde68a;
-            --info-color-text: #1e40af;
-            --info-color-bg: #dbeafe;
-            --info-color-border: #93c5fd;
-            --background-main: #FDFDFD;
-            --background-card: #FFFFFF;
-            --text-primary: #1F2937;
-            --text-secondary: #6B7280;
-            --border-color: #D1D5DB;
-            --card-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05), 0px 2px 4px -1px rgba(0, 0, 0, 0.04);
-            --large-radius: 16px;
-            --medium-radius: 8px;
-            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            /* Palette lifted from giuliatobattistin.it */
+            --bg: #2C3E50;
+            --deep: #0D1F31;
+            --line: rgba(255, 255, 255, 0.16);
+            --line-strong: rgba(255, 255, 255, 0.34);
+            --text: rgba(255, 255, 255, 0.88);
+            --muted: rgba(255, 255, 255, 0.72);
+            --white: #FFFFFF;
+            --teal: #0F766E;
+            --teal-hover: #115E59;
+            --mint: #32D296;
+            --red: #E74C3C;
+            --red-text: #FF9B8F;
+
+            --sheet: #FFFFFF;
+            --sheet-text: #2C3E50;
+            --sheet-muted: #56677A;
+            --sheet-line: #DCE1E6;
+            --sheet-soft: #F4F6F8;
+
+            --font-display: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: 'Open Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+            --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 32px; --space-5: 48px;
+            --radius-panel: 16px; --radius-field: 10px; --radius-pill: 9999px;
+            --shadow-panel: 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+            --shadow-focus: 0 0 0 3px rgba(50, 210, 150, 0.35);
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* --- Reset e Stili Globali --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
-        body {
-            font-family: var(--font-family);
-            background-color: var(--background-main);
-            color: var(--text-secondary);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 32px 16px;
-            line-height: 1.6;
-        }
-
-        /* --- Contenitore Principale --- */
-        .main-container { width: 100%; max-width: 700px; background-color: var(--background-card); border-radius: var(--large-radius); box-shadow: var(--card-shadow); padding: 32px; transition: all 0.3s ease; }
-        
-        @media (max-width: 768px) {
-            body { padding: 16px 8px; }
-            .main-container { padding: 24px; }
-        }
-
-        /* --- Tipografia --- */
-        h1 { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
-        h2 { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
-        h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; margin-top: 20px;}
-        .intro-text { font-size: 14px; margin-bottom: 32px; }
-
-        /* --- Form --- */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .full-width { grid-column: 1 / -1; }
-        label, .checkbox-label { font-weight: 500; font-size: 14px; color: var(--text-primary); cursor: pointer; }
-        .input-wrapper { position: relative; }
-        .input-wrapper .currency-symbol { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-weight: 500; pointer-events: none; }
-        input[type="text"] { width: 100%; padding: 10px 12px 10px 30px; border: 1px solid var(--border-color); border-radius: var(--medium-radius); font-size: 14px; font-family: var(--font-family); transition: border-color 0.2s, box-shadow 0.2s; }
-        input[type="text"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
-        .radio-group { display: flex; gap: 12px; border: 1px solid var(--border-color); border-radius: var(--medium-radius); padding: 4px; }
-        .radio-group label { flex: 1; text-align: center; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: background-color 0.2s, color 0.2s; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
-        .radio-group input[type="radio"] { display: none; }
-        .radio-group input[type="radio"]:checked + label { background-color: var(--primary-color); color: white; box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2); }
-        .tooltip { font-size: 12px; color: var(--text-secondary); margin-top: -4px; line-height: 1.4; }
-        .checkbox-container { display: flex; align-items: center; gap: 10px; background-color: #f9fafb; padding: 12px; border-radius: var(--medium-radius); }
-        #preliminary-fields { border-left: 3px solid var(--primary-color); padding-left: 16px; margin-top: 16px; }
-
-        
-        /* --- Messaggi di notifica --- */
-        .message-box { padding: 12px; border-radius: var(--medium-radius); text-align: left; font-size: 14px; font-weight: 500; margin-bottom: 16px; transition: opacity 0.3s ease; }
-        .error-message { color: var(--error-color-text); background-color: var(--error-color-bg); border: 1px solid var(--error-color-border); }
-        .warning-message { color: var(--warning-color-text); background-color: var(--warning-color-bg); border: 1px solid var(--warning-color-border); }
-        .info-message { color: var(--info-color-text); background-color: var(--info-color-bg); border: 1px solid var(--info-color-border); }
-
-
-        /* --- Pulsanti --- */
-        .btn { padding: 12px 20px; border: none; border-radius: var(--medium-radius); font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s; display: inline-flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }
-        .btn svg { width: 16px; height: 16px; }
-        .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-primary:hover { background-color: var(--primary-hover-color); }
-        .btn-whatsapp { background-color: var(--whatsapp-color); color: white; }
-        .btn-whatsapp:hover { background-color: var(--whatsapp-hover-color); }
-        .btn-secondary { background-color: #f3f4f6; color: var(--primary-color); border: 1px solid var(--primary-color); }
-        .btn-secondary:hover { background-color: #e5e7eb; }
-        .btn:active { transform: scale(0.98); }
-        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
-        
-        /* --- Sezione Risultati --- */
-        #results-section { display: none; margin-top: 32px; padding-top: 24px; }
-        .results-summary { display: flex; justify-content: space-between; align-items: center; background-color: #f7f8fa; padding: 20px; border-radius: var(--medium-radius); margin-bottom: 24px; }
-        .total-label { font-size: 16px; font-weight: 600; color: var(--text-primary); }
-        .total-amount { font-size: 28px; font-weight: 700; color: var(--primary-color); }
-        .chart-container { width: 100%; margin-bottom: 24px; }
-        .chart-bar { display: flex; height: 20px; border-radius: 4px; overflow: hidden; background-color: #e5e7eb; }
-        .chart-segment { height: 100%; transition: width 0.8s ease-in-out; }
-        .tax-breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px 24px; }
-        .tax-item { display: flex; flex-direction: column; }
-        .tax-item .label { display: flex; align-items: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 4px; }
-        .tax-item .label.deduction { color: #d97706; }
-        .tax-item .color-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
-        .tax-item .amount { font-size: 18px; font-weight: 600; color: var(--text-primary); }
-        
-        /* --- Footer e Contatti --- */
-        .contact-footer { margin-top: 40px; text-align: center; font-size: 12px; color: #9ca3af; }
-        .contact-footer a { color: var(--text-secondary); font-weight: 500; text-decoration: none; }
-        .contact-footer a:hover { color: var(--primary-color); text-decoration: underline; }
-        .contact-footer p { margin-bottom: 4px; }
-
-        /* --- Utility e Responsive --- */
+        *, *::before, *::after { box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; color-scheme: dark; scrollbar-color: var(--line-strong) var(--bg); }
+        body { font-family: var(--font-body); font-size: 15px; line-height: 1.6; margin: 0; padding: var(--space-5) var(--space-2) 96px; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+        ::selection { background: var(--mint); color: var(--deep); }
+        :focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
         .hidden { display: none !important; }
-        @media (max-width: 600px) {
-            .form-grid, .actions-grid { grid-template-columns: 1fr; }
-            .total-amount { font-size: 24px; }
+
+        .container { max-width: 960px; margin: 0 auto; }
+        html.embedded body { padding-top: var(--space-2); padding-bottom: var(--space-4); }
+        html.embedded .page-head .brand, html.embedded .page-head h1, html.embedded .contact-footer { display: none; }
+        html.embedded .page-head { margin-bottom: var(--space-3); }
+
+        .page-head { text-align: center; margin-bottom: var(--space-4); }
+        .page-head .brand { font-family: var(--font-display); font-size: 14px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600; color: var(--muted); margin: 0 0 var(--space-2); }
+        .page-head h1 { font-family: var(--font-display); font-size: clamp(26px, 5vw, 36px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; color: var(--white); margin: 0; text-wrap: balance; }
+        .page-head .subtitle { margin: var(--space-2) auto 0; max-width: 60ch; color: var(--muted); }
+
+        /* Form panel */
+        #tax-form { background: var(--deep); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); padding: var(--space-5); display: grid; grid-template-columns: 1fr; row-gap: var(--space-5); align-items: start; }
+        .form-section { border: 0; margin: 0; padding: 0; min-width: 0; }
+        .form-section legend { float: left; width: 100%; padding: 0 0 var(--space-2); margin: 0 0 var(--space-3); border-bottom: 1px solid var(--line); font-family: var(--font-display); font-size: 17px; font-weight: 700; letter-spacing: 0.01em; line-height: 1.3; color: var(--white); }
+        .form-section legend + * { clear: both; }
+        .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); column-gap: var(--space-5); row-gap: var(--space-3); align-items: start; }
+        .field { min-width: 0; }
+        .field label:not(.choice), .choices-label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text); font-size: 13.5px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper .currency-symbol { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 600; pointer-events: none; }
+        .field input[type="text"] {
+            display: block; width: 100%; min-height: 50px; padding: 12px 14px 12px 34px; border: 1px solid var(--line-strong); border-radius: var(--radius-field);
+            font-family: inherit; font-size: 16px; line-height: 1.4; color: var(--white); background: var(--bg); -webkit-appearance: none; appearance: none;
+            transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out); font-variant-numeric: tabular-nums;
+        }
+        .field input::placeholder { color: var(--muted); opacity: 0.6; }
+        .field input[type="text"]:hover { border-color: rgba(255, 255, 255, 0.55); }
+        .field input[type="text"]:focus { border-color: var(--mint); outline: none; box-shadow: var(--shadow-focus); }
+        [aria-invalid="true"] { border-color: var(--red) !important; }
+        .hint { font-size: 12.5px; color: var(--muted); margin: 5px 0 0; display: block; line-height: 1.5; }
+
+        .choices { display: grid; gap: 4px; }
+        .choice { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 6px 4px; font-size: 14px; color: var(--text); cursor: pointer; line-height: 1.4; }
+        .choice input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--mint); cursor: pointer; }
+        .choices-box { margin-top: var(--space-2); padding: var(--space-2); background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-field); }
+
+        .form-error { margin: 0; text-align: center; color: var(--red-text); font-weight: 600; font-size: 14px; }
+        .privacy { margin: 0; text-align: center; font-size: 12.5px; color: var(--muted); }
+
+        .btn { font-family: var(--font-display); color: #fff; display: inline-flex; justify-content: center; align-items: center; gap: var(--space-1); padding: 12px 24px; min-height: 48px; width: 100%; border: 1px solid transparent; border-radius: var(--radius-pill); font-size: 14px; font-weight: 600; letter-spacing: 0.04em; line-height: 1.3; text-align: center; cursor: pointer; transition: background-color 0.2s var(--ease-out), transform 0.15s var(--ease-out), border-color 0.2s var(--ease-out), color 0.2s var(--ease-out); }
+        .btn svg { width: 16px; height: 16px; flex: none; }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-primary { background: var(--teal); }
+        .btn-primary:hover { background: var(--teal-hover); }
+        .btn-outline { background: transparent; color: var(--sheet-text); border-color: var(--sheet-text); }
+        .btn-outline:hover { background: var(--sheet-text); color: #fff; }
+        #btn-calc { justify-self: center; width: min(100%, 380px); padding: 16px 32px; font-size: 15px; text-transform: uppercase; }
+
+        /* Results: white sheet */
+        .results-section { display: none; margin-top: var(--space-5); background: var(--sheet); color: var(--sheet-muted); padding: var(--space-5); border-radius: var(--radius-panel); box-shadow: var(--shadow-panel); scroll-margin-top: var(--space-3); }
+        .results-section:focus { outline: none; }
+        .results-section.visible { display: block; animation: reveal 0.6s var(--ease-out); }
+        @keyframes reveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+        .highlight-box { margin: 0 0 var(--space-2); }
+        .highlight-box p { margin: 0; font-family: var(--font-display); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--teal); }
+        .highlight-box .range { display: block; margin-top: 6px; font-family: var(--font-display); font-size: clamp(28px, 6vw, 48px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; color: var(--sheet-text); font-variant-numeric: tabular-nums; }
+        .callout { margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-field); background: #E6F4F2; color: #0B4F49; font-size: 14.5px; line-height: 1.6; }
+        .callout.warn { background: #FFF1E8; color: #7A3412; }
+        .chart-bar { display: flex; height: 14px; border-radius: var(--radius-pill); overflow: hidden; background: var(--sheet-soft); margin: 0 0 var(--space-3); }
+        .chart-segment { height: 100%; width: 0; transition: width 0.8s var(--ease-out); }
+        .results-section h2 { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--sheet-text); margin: 0 0 var(--space-2); padding-top: var(--space-4); border-top: 1px solid var(--sheet-line); }
+        .detail-list { margin: 0; }
+        .detail-list .row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); padding: 10px 0; border-bottom: 1px solid var(--sheet-line); font-size: 14.5px; }
+        .detail-list dt { display: flex; align-items: center; gap: 10px; color: var(--sheet-muted); }
+        .detail-list dd { margin: 0; text-align: right; font-weight: 600; color: var(--sheet-text); font-variant-numeric: tabular-nums; }
+        .detail-list .row.strong dt { color: var(--sheet-text); font-weight: 700; }
+        .detail-list .row.strong dd { color: #115E59; font-weight: 700; }
+        .detail-list .row.deduction dd { color: #7A3412; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+        .result-actions { display: flex; gap: var(--space-2); margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--sheet-line); flex-wrap: wrap; }
+        .result-actions .btn { flex: 1 1 240px; }
+        .results-section :focus-visible { outline-color: var(--teal); }
+
+        .contact-footer { margin-top: var(--space-5); text-align: center; font-size: 12.5px; color: var(--muted); }
+        .contact-footer p { margin: 0 0 4px; }
+        .contact-footer a { color: var(--text); text-decoration: none; font-weight: 600; }
+        .contact-footer a:hover { color: var(--mint); text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            body { padding-top: var(--space-4); }
+            #tax-form { padding: var(--space-3) var(--space-2); row-gap: var(--space-4); border-radius: 14px; }
+            .results-section { padding: var(--space-4) var(--space-2); border-radius: 14px; }
+            .detail-list .row { flex-wrap: wrap; }
+            .detail-list dd { text-align: left; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .btn:hover { transform: none; }
         }
     </style>
 </head>
 <body>
-
-    <main class="main-container">
-        <header>
-            <h1>Italy Property Purchase Tax Calculator</h1>
-            <p class="intro-text">Estimate the taxes for purchasing a residential property in Italy. Fill in the fields to get a detailed breakdown, including preliminary contract costs.</p>
+    <div class="container">
+        <header class="page-head">
+            <p class="brand">Giuliato&amp;Battistin</p>
+            <h1>Italy property purchase tax calculator</h1>
+            <p class="subtitle">Estimate the taxes on buying a home in Italy, including the "prima casa" relief and the cost of the preliminary contract.</p>
         </header>
 
-        <form id="tax-form" onsubmit="event.preventDefault(); calculateTaxes();">
-            <h3>1. Property Sale Details</h3>
-            <div class="form-grid">
-                <div class="form-group full-width">
-                    <label>Seller Type</label>
-                    <div class="radio-group">
-                        <input type="radio" id="seller-private" name="seller" value="private" checked>
-                        <label for="seller-private">Private Individual</label>
-                        <input type="radio" id="seller-company" name="seller" value="company">
-                        <label for="seller-company">Company / Developer</label>
-                    </div>
-                </div>
-                <div id="company-vat-group" class="form-group full-width hidden">
-                    <label>Company Tax Status</label>
-                     <div class="radio-group">
-                        <input type="radio" id="vat-applicable" name="vat-regime" value="applicable" checked><label for="vat-applicable">Subject to VAT</label>
-                        <input type="radio" id="vat-exempt" name="vat-regime" value="exempt"><label for="vat-exempt">VAT Exempt</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="sale-price">Sale Price</label>
-                    <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="sale-price" required placeholder="E.g., 200,000.00"></div>
-                </div>
-                <div id="rendita-group" class="form-group">
-                    <label for="rendita-catastale">Land Registry Value (Rendita Catastale)</label>
-                    <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="rendita-catastale" placeholder="E.g., 850.50"></div>
-                    <p class="tooltip">The official *taxable value* of the property, found in the land registry. It is typically much lower than the market price.</p>
-                </div>
-                <div class="form-group full-width">
-                    <label>"Prima Casa" (Primary Residence) Relief</label>
-                    <div class="radio-group">
-                        <input type="radio" id="prima-casa-yes" name="prima-casa" value="yes" checked><label for="prima-casa-yes">Yes</label>
-                        <input type="radio" id="prima-casa-no" name="prima-casa" value="no"><label for="prima-casa-no">No</label>
-                    </div>
-                     <p class="tooltip">Provides significant tax reductions if this will be your main residence in Italy (conditions apply).</p>
-                </div>
-                <div id="price-value-group" class="form-group full-width">
-                    <label>Taxable Basis (if seller is private)</label>
-                     <div class="radio-group">
-                        <input type="radio" id="calc-prezzo-valore" name="base-calcolo" value="prezzo-valore" checked><label for="calc-prezzo-valore">"Prezzo-Valore" (Registry Value)</label>
-                        <input type="radio" id="calc-prezzo" name="base-calcolo" value="prezzo">Sale Price</label>
-                    </div>
-                    <p class="tooltip">The "Prezzo-Valore" system lets you pay tax on the lower *Land Registry Value* instead of the *Sale Price*. This is highly advantageous and available when buying from a private individual.</p>
-                </div>
-            </div>
-
-            <h3>2. Preliminary Contract (Optional)</h3>
-            <div class="full-width">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="has-preliminary" style="margin-right: 8px;">
-                    <label for="has-preliminary" class="checkbox-label">Include Preliminary Contract ("Preliminare") costs</label>
-                </div>
-                <div id="preliminary-fields" class="hidden">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="caparra">Security Deposit (Caparra)</label>
-                            <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="caparra" placeholder="E.g., 20,000.00"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="acconti">Down Payments (Acconti)</label>
-                            <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="acconti" placeholder="E.g., 10,000.00"></div>
+        <form id="tax-form" novalidate>
+            <fieldset class="form-section">
+                <legend>1. Purchase details</legend>
+                <div class="field-grid">
+                    <div class="field">
+                        <span class="choices-label" id="l-seller">Seller type</span>
+                        <div class="choices" role="radiogroup" aria-labelledby="l-seller">
+                            <label class="choice"><input type="radio" name="seller" value="private" checked> Private individual</label>
+                            <label class="choice"><input type="radio" name="seller" value="company"> Company</label>
                         </div>
                     </div>
-                    <p class="tooltip info-message" style="margin-top:12px; text-align:left;">From 2025, deposits are taxed with a fixed €200 tax + a 0.5% proportional tax. This 0.5% is then credited back (deducted) from the taxes at the final deed.</p>
+                    <div class="field hidden" id="company-vat-group">
+                        <span class="choices-label" id="l-vat">Company tax regime</span>
+                        <div class="choices" role="radiogroup" aria-labelledby="l-vat">
+                            <label class="choice"><input type="radio" name="vat-regime" value="applicable" checked> Sale subject to VAT</label>
+                            <label class="choice"><input type="radio" name="vat-regime" value="exempt"> Sale exempt from VAT</label>
+                        </div>
+                        <span class="hint">Usually a company that built or renovated the property sells with VAT within 5 years of completing the works.</span>
+                    </div>
+                    <div class="field">
+                        <label for="sale-price">Sale price</label>
+                        <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="sale-price" autocomplete="off" placeholder="E.g. 200,000.00"></div>
+                    </div>
+                    <div class="field" id="rendita-group">
+                        <label for="rendita-catastale">Land Registry value (rendita catastale)</label>
+                        <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="rendita-catastale" autocomplete="off" placeholder="E.g. 850.50"></div>
+                        <span class="hint">Sum of the values of the home and its annexes (not revalued).</span>
+                    </div>
+                    <div class="field">
+                        <span class="choices-label" id="l-prima">"Prima casa" relief</span>
+                        <div class="choices" role="radiogroup" aria-labelledby="l-prima">
+                            <label class="choice"><input type="radio" name="prima-casa" value="yes" checked> Yes</label>
+                            <label class="choice"><input type="radio" name="prima-casa" value="no"> No</label>
+                        </div>
+                        <span class="hint">Allows reduced taxes. The relief applies to one annex per category only (e.g. one C/2, one C/6). It does not apply to luxury homes (A/1, A/8, A/9): this calculation is not valid for them.</span>
+                    </div>
+                    <div class="field" id="price-value-group">
+                        <span class="choices-label" id="l-base">Taxable basis</span>
+                        <div class="choices" role="radiogroup" aria-labelledby="l-base">
+                            <label class="choice"><input type="radio" name="base-calcolo" value="prezzo-valore" checked> Price-value (prezzo-valore)</label>
+                            <label class="choice"><input type="radio" name="base-calcolo" value="prezzo"> Price</label>
+                        </div>
+                        <span class="hint">Price-value uses the revalued Land Registry value as the taxable basis for registration tax, often more favourable. Private sellers only.</span>
+                    </div>
                 </div>
-            </div>
+            </fieldset>
 
-            <div class="form-group full-width" style="margin-top:32px;">
-                 <p id="error-message" class="message-box error-message hidden"></p>
-                 <button type="submit" class="btn btn-primary">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M7 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H7zm0 2h10v4H7V4zm0 6h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-8 4h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"/></svg>
-                     Calculate Taxes
-                </button>
-            </div>
+            <fieldset class="form-section">
+                <legend>2. Preliminary contract (optional)</legend>
+                <label class="choice"><input type="checkbox" id="has-preliminary"> Include the preliminary contract</label>
+                <div id="preliminary-fields" class="hidden choices-box">
+                    <div class="field-grid">
+                        <div class="field">
+                            <label for="caparra">Security deposit (caparra confirmatoria)</label>
+                            <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="caparra" autocomplete="off" placeholder="E.g. 20,000.00"></div>
+                            <span class="hint">Registration tax at 0.5%.</span>
+                        </div>
+                        <div class="field" id="acconti-group">
+                            <label for="acconti">Down payments (acconti)</label>
+                            <div class="input-wrapper"><span class="currency-symbol">€</span><input type="text" inputmode="decimal" id="acconti" autocomplete="off" placeholder="E.g. 10,000.00"></div>
+                            <span class="hint" id="acconti-hint">Registration tax at 3%. In a sale with VAT, down payments pay no registration tax.</span>
+                        </div>
+                    </div>
+                    <p class="hint" style="margin-top:16px">A registered preliminary contract pays €200 fixed tax plus proportional tax on the deposit and down payments. The proportional part is credited against the registration tax of the final deed; the fixed €200 is not.</p>
+                </div>
+            </fieldset>
+
+            <p id="error-message" class="form-error hidden" role="alert"></p>
+            <button type="submit" id="btn-calc" class="btn btn-primary">Calculate taxes</button>
+            <p class="privacy">The calculation runs in your browser: nothing is sent or saved.</p>
         </form>
 
-        <section id="results-section">
+        <section id="results-section" class="results-section" tabindex="-1" aria-live="polite">
+            <div class="highlight-box">
+                <p>Taxes due at the deed</p>
+                <span class="range" id="final-deed-total">€ 0,00</span>
+            </div>
+            <div class="callout warn"><strong>Please note:</strong> this is an indicative estimate and does not replace professional advice. For an exact figure, ask a notary.</div>
+
+            <div class="chart-bar" role="img" aria-label="Breakdown of the deed taxes">
+                <div id="iva-bar" class="chart-segment" style="background:#E8743B"></div>
+                <div id="registro-bar" class="chart-segment" style="background:#0F766E"></div>
+                <div id="ipotecaria-bar" class="chart-segment" style="background:#32D296"></div>
+                <div id="catastale-bar" class="chart-segment" style="background:#2C3E50"></div>
+            </div>
+
+            <h2>Deed tax breakdown</h2>
+            <dl class="detail-list">
+                <div class="row" id="iva-item"><dt><span class="dot" style="background:#E8743B"></span>VAT</dt><dd id="iva-result">€ 0,00</dd></div>
+                <div class="row"><dt><span class="dot" style="background:#0F766E"></span>Registration tax</dt><dd id="registro-result">€ 0,00</dd></div>
+                <div class="row deduction" id="registro-deduction-item"><dt>Credit from the preliminary contract tax</dt><dd id="registro-deduction">€ 0,00</dd></div>
+                <div class="row"><dt><span class="dot" style="background:#32D296"></span>Mortgage tax</dt><dd id="ipotecaria-result">€ 0,00</dd></div>
+                <div class="row"><dt><span class="dot" style="background:#2C3E50"></span>Cadastral tax</dt><dd id="catastale-result">€ 0,00</dd></div>
+            </dl>
+
             <div id="preliminary-results" class="hidden">
-                <h2>Preliminary Contract Summary</h2>
-                <div class="tax-breakdown">
-                     <div class="tax-item"><div class="label"><span class="color-dot" style="background-color: #f59e0b;"></span>Fixed Tax</div><div id="preliminary-fixed-result" class="amount">€ 0.00</div></div>
-                     <div class="tax-item"><div class="label"><span class="color-dot" style="background-color: #f97316;"></span>Tax on Deposits (0.5%)</div><div id="preliminary-prop-result" class="amount">€ 0.00</div></div>
-                </div>
-                 <div class="results-summary" style="margin-top:16px; background-color: var(--info-color-bg); border: 1px solid var(--info-color-border);">
-                    <span class="total-label" style="color:var(--info-color-text)">Total Preliminary Costs</span>
-                    <span id="preliminary-total" class="total-amount" style="color:var(--info-color-text)">€ 0.00</span>
-                </div>
+                <h2>Preliminary contract</h2>
+                <dl class="detail-list">
+                    <div class="row"><dt>Fixed registration tax</dt><dd id="preliminary-fixed-result">€ 0,00</dd></div>
+                    <div class="row"><dt>Tax on the deposit (0.5%)</dt><dd id="preliminary-cap-result">€ 0,00</dd></div>
+                    <div class="row" id="preliminary-acc-item"><dt>Tax on down payments (3%)</dt><dd id="preliminary-acc-result">€ 0,00</dd></div>
+                    <div class="row strong"><dt>Preliminary contract total</dt><dd id="preliminary-total">€ 0,00</dd></div>
+                </dl>
+                <dl class="detail-list" style="margin-top: var(--space-3)">
+                    <div class="row strong"><dt>Total taxes (preliminary + deed)</dt><dd id="grand-total">€ 0,00</dd></div>
+                </dl>
             </div>
 
-            <h2>Tax Summary (Final Deed)</h2>
-            <div class="message-box warning-message">
-                <strong>Disclaimer:</strong> This calculation is an estimate and does not replace professional advice. For a precise count, you must consult an Italian notary ("Notaio").
+            <div class="result-actions">
+                <button id="pdf-btn" type="button" class="btn btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4H1v4a4 4 0 0 0 4 4h14a4 4 0 0 0 4-4v-4h-2zm-1-4-1.41-1.41L13 15.17V3h-2v12.17l-5.59-5.58L4 11l8 8 8-8z"/></svg>Download PDF summary</button>
+                <button id="whatsapp-btn" type="button" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.575 6.575 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.08-.15-.197-.25z"/></svg>Need a more precise calculation?</button>
             </div>
-            
-            <div class="chart-container">
-                 <div class="chart-bar">
-                    <div id="iva-bar" class="chart-segment" style="background-color: #EC4899;" title="VAT"></div>
-                    <div id="registro-bar" class="chart-segment" style="background-color: #6366F1;" title="Registration Tax"></div>
-                    <div id="ipotecaria-bar" class="chart-segment" style="background-color: #3B82F6;" title="Title Registry Tax"></div>
-                    <div id="catastale-bar" class="chart-segment" style="background-color: #8B5CF6;" title="Land Registry Tax"></div>
-                </div>
-            </div>
-
-            <div class="tax-breakdown">
-                <div class="tax-item"><div class="label"><span class="color-dot" style="background-color: #EC4899;"></span>VAT (IVA)</div><div id="iva-result" class="amount">€ 0.00</div></div>
-                <div class="tax-item"><div class="label"><span class="color-dot" style="background-color: #6366F1;"></span>Registration Tax (Imposta di Registro)</div><div id="registro-result" class="amount">€ 0.00</div></div>
-                <div class="tax-item" id="registro-deduction-item"><div class="label deduction"><span class="color-dot" style="background-color: transparent;"></span>- Credit from preliminary</div><div id="registro-deduction" class="amount">€ 0.00</div></div>
-                <div class="tax-item"><div class="label"><span class="color-dot" style="background-color: #3B82F6;"></span>Title Registry Tax (Imposta Ipotecaria)</div><div id="ipotecaria-result" class="amount">€ 0.00</div></div>
-                <div class="tax-item"><div class="label"><span class="color-dot" style="background-color: #8B5CF6;"></span>Land Registry Tax (Imposta Catastale)</div><div id="catastale-result" class="amount">€ 0.00</div></div>
-            </div>
-             <div class="results-summary" style="margin-top:16px;">
-                <span class="total-label">Total Final Tax Bill</span>
-                <span id="final-deed-total" class="total-amount">€ 0.00</span>
-            </div>
-            
-            <div class="actions-grid">
-                 <button id="pdf-btn" type="button" class="btn btn-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4H1v4a4 4 0 0 0 4 4h14a4 4 0 0 0 4-4v-4h-2zm-1-4-1.41-1.41L13 15.17V3h-2v12.17l-5.59-5.58L4 11l8 8 8-8z"/></svg>Download PDF Summary</button>
-                 <button id="whatsapp-btn" type="button" class="btn btn-whatsapp">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.575 6.575 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.1-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943s-.08-.15-.197-.25z"/></svg>
-                    Need a more precise calculation?
-                </button>
-             </div>
         </section>
 
         <footer class="contact-footer">
-            <p><strong>Giuliato&Battistin immobiliare</strong></p>
-            <p>Corso SS. Felice e Fortunato n. 29, 36100 Vicenza, Italy</p>
+            <p><strong>Giuliato&amp;Battistin immobiliare</strong></p>
+            <p>Corso SS. Felice e Fortunato n. 29, 36100 Vicenza</p>
             <p><a href="mailto:info@giuliatobattistin.it">info@giuliatobattistin.it</a> | <a href="tel:+390444525447">+39 0444 525447</a></p>
         </footer>
-    </main>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <script>
-        // --- DOM ELEMENT SELECTION ---
-        const form = document.getElementById('tax-form');
-        const resultsSection = document.getElementById('results-section');
-        const companyVatGroup = document.getElementById('company-vat-group');
-        const renditaGroup = document.getElementById('rendita-group');
-        const renditaInput = document.getElementById('rendita-catastale');
-        const salePriceInput = document.getElementById('sale-price');
-        const priceValueGroup = document.getElementById('price-value-group');
-        const hasPreliminaryCheck = document.getElementById('has-preliminary');
-        const preliminaryFields = document.getElementById('preliminary-fields');
-        const preliminaryResults = document.getElementById('preliminary-results');
-        const caparraInput = document.getElementById('caparra');
-        const accontiInput = document.getElementById('acconti');
-        const errorMessageElement = document.getElementById('error-message');
-        const { jsPDF } = window.jspdf;
-
-        // --- GLOBAL STATE ---
-        let lastCalculation = {};
-        // Use 'en-US' locale for formatting, but 'EUR' currency
+        // --- LOCALE / STRINGS ---
+        const DEC = '.', THOU = ',';
+        const T = {
+        "errPrice": "Please enter a valid sale price.",
+        "errRendita": "Please enter the Land Registry value (rendita catastale).",
+        "errPrelim": "With the preliminary contract, please enter a deposit or down payment amount.",
+        "errExceed": "Deposit and down payments cannot exceed the sale price.",
+        "errCalcFirst": "Please run a calculation first.",
+        "errPdfFirst": "Please run a calculation to generate the PDF.",
+        "errPdfLib": "The PDF generator is not available: check your connection and try again.",
+        "waIntro": "Summary from the Giuliato&Battistin calculator:",
+        "waDeed": "Taxes at the deed",
+        "waPrelim": "Preliminary contract taxes",
+        "waRequest": "I'd like a more precise calculation for this estimate.",
+        "pdfTitle": "Italy Property Purchase Tax Summary",
+        "pdfDate": "Date",
+        "pdfSeller": "Seller type",
+        "pdfVat": "VAT regime",
+        "pdfPrima": "'Prima casa' relief",
+        "pdfPrice": "Sale price",
+        "pdfBase": "Taxable basis",
+        "pdfRendita": "Land Registry value",
+        "pdfInputs": "Your inputs",
+        "pdfCaparra": "Security deposit (caparra)",
+        "pdfAcconti": "Down payments (acconti)",
+        "pdfPrelimInputs": "Preliminary contract inputs",
+        "pdfPrelimFixed": "Fixed registration tax",
+        "pdfPrelimCap": "Tax on the deposit (0.5%)",
+        "pdfPrelimAcc": "Tax on down payments (3%)",
+        "pdfPrelimCosts": "Preliminary contract costs",
+        "pdfPrelimTotal": "PRELIMINARY CONTRACT TOTAL",
+        "pdfIva": "VAT",
+        "pdfRegistro": "Registration tax (gross)",
+        "pdfDeduction": "Credit from preliminary contract",
+        "pdfIpo": "Mortgage tax",
+        "pdfCat": "Cadastral tax",
+        "pdfDetail": "Deed tax breakdown",
+        "pdfDeedTotal": "TOTAL DEED TAXES",
+        "pdfGrandTotal": "TOTAL TAXES (PRELIMINARY + DEED)",
+        "pdfDisclaimer": "Please note: this is an indicative estimate and does not replace professional advice. For an exact figure, please consult a notary or a qualified professional. Giuliato&Battistin immobiliare accepts no liability for any inaccuracy."
+};
         const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const $ = id => document.getElementById(id);
+        const fmt = n => CURRENCY_FORMATTER.format(n);
 
-        // --- UTILITY FUNCTIONS ---
-        function showError(message) { errorMessageElement.textContent = message; errorMessageElement.classList.remove('hidden'); }
-        function clearError() { if (!errorMessageElement.classList.contains('hidden')) { errorMessageElement.classList.add('hidden'); errorMessageElement.textContent = ''; } }
-        function resetResults() { if (!resultsSection.classList.contains('hidden')) { resultsSection.style.display = 'none'; lastCalculation = {}; } }
-        
-        // --- ROBUST LIVE FORMATTING FUNCTION (adapts to EN/US formats) ---
-        function currencyInputHandler(event) {
-            const input = event.target;
-            const originalValue = input.value;
-            const cursorPosition = input.selectionStart;
+        // --- CALCULATION (pure, no DOM) ---
+        const roundEuro = x => Math.round(x);                 // registration taxes are rounded to the euro
+        const roundCents = x => Math.round(x * 100) / 100;     // VAT is not rounded to the euro
 
-            // Allow comma or period as decimal separator, but standardize to period for parseFloat
-            let value = originalValue.replace(/[^0-9.,]/g, ''); 
-            
-            // Handle multiple separators
-            const separators = (value.match(/[.,]/g) || []);
-            if (separators.length > 1) {
-                const lastSeparator = separators[separators.length - 1];
-                const separatorChar = lastSeparator === '.' ? '.' : ',';
-                // Remove all but the last separator
-                value = value.replace(/[.,]/g, (match, offset) => offset === value.lastIndexOf(separatorChar) ? separatorChar : '');
+        function computeTaxes(p) {
+            // p: { seller, vatRegime, primaCasa, base, price, rendita, hasPreliminary, caparra, acconti }
+            const vatSale = p.seller === 'company' && p.vatRegime === 'applicable';
+
+            // Preliminary contract: 200 fixed + 0.5% on caparra + 3% on acconti (acconti are not taxed when the sale is subject to VAT)
+            let fixedPrelim = 0, capPrelim = 0, accPrelim = 0;
+            if (p.hasPreliminary) {
+                fixedPrelim = 200;
+                capPrelim = roundEuro(p.caparra * 0.005);
+                accPrelim = vatSale ? 0 : roundEuro(p.acconti * 0.03);
             }
-            
-            // Standardize to period for internal logic
-            let internalValue = value.replace(',', '.');
-            
-            let [integerPart, decimalPart] = internalValue.split('.');
+            const proportionalPrelim = capPrelim + accPrelim;   // credited against the tax due on the final deed
+            const totalPrelim = fixedPrelim + proportionalPrelim;
 
-            // Remove formatting (commas) from integer part
-            integerPart = integerPart.replace(/,/g, '');
-            
-            // Format integer part with commas (en-US style)
-            const formattedIntegerPart = new Intl.NumberFormat('en-US').format(parseInt(integerPart, 10) || 0).replace(/,00$/, '');
-
-            let formattedValue = (integerPart === '') ? '' : formattedIntegerPart;
-            if (decimalPart !== undefined) {
-                // Keep the original decimal separator used by the user (comma or period)
-                formattedValue += (value.includes(',') ? ',' : '.') + decimalPart.substring(0, 2);
-            }
-            
-            if (originalValue !== formattedValue) {
-                input.value = formattedValue;
-                const newLength = formattedValue.length;
-                const newCursorPosition = cursorPosition + (newLength - originalValue.length);
-                try {
-                    input.setSelectionRange(newCursorPosition, newCursorPosition);
-                } catch(e) { /* Fails in some browsers, but is not critical. */ }
-            }
-        }
-        
-        function currencyBlurHandler(event) {
-            const input = event.target;
-            let value = unformatCurrency(input.value);
-            if(value > 0) {
-                 // Format with 2 decimal places, using locale-specific separator
-                 input.value = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+            let iva = 0, registroLordo, ipotecaria, catastale;
+            if (vatSale) {
+                iva = roundCents(p.price * (p.primaCasa ? 0.04 : 0.10));
+                registroLordo = 200; ipotecaria = 200; catastale = 200;
             } else {
-                 if (!input.hasAttribute('required')) input.value = '';
+                const usePrezzoValore = p.seller === 'private' && p.base === 'prezzo-valore';
+                const taxable = usePrezzoValore ? p.rendita * 1.05 * (p.primaCasa ? 110 : 120) : p.price;
+                registroLordo = Math.max(1000, roundEuro(taxable * (p.primaCasa ? 0.02 : 0.09)));
+                ipotecaria = 50; catastale = 50;
             }
+
+            const creditApplied = Math.min(proportionalPrelim, registroLordo);
+            const registroNetto = registroLordo - creditApplied;
+            const totalDeed = roundCents(iva + registroNetto + ipotecaria + catastale);
+            return {
+                hasPreliminary: p.hasPreliminary, vatSale,
+                fixedPrelim, capPrelim, accPrelim, totalPrelim,
+                iva, registroLordo, creditApplied, registroNetto, ipotecaria, catastale,
+                totalDeed, grandTotal: roundCents(totalDeed + totalPrelim)
+            };
         }
 
-        // Unformat US/EU currency string to a float
+        // --- NUMBER INPUT HANDLING ---
+        function groupDigits(s) { return s.replace(/\B(?=(\d{3})+(?!\d))/g, THOU); }
         function unformatCurrency(value) {
             if (typeof value !== 'string' || value.trim() === '') return 0;
-            // Remove thousand separators (commas), then replace decimal comma with a period
-            return parseFloat(value.replace(/,/g, '').replace(',', '.')) || 0;
+            const n = parseFloat(value.split(THOU).join('').replace(DEC, '.'));
+            return isFinite(n) ? n : 0;
+        }
+        function currencyInputHandler(event) {
+            const input = event.target;
+            const raw = input.value;
+            const caret = input.selectionStart;
+            const isKept = c => (c >= '0' && c <= '9') || c === DEC;
+            let kept = 0;
+            for (let i = 0; i < caret; i++) if (isKept(raw[i])) kept++;
+
+            let cleaned = raw.split('').filter(isKept).join('');
+            const firstDec = cleaned.indexOf(DEC);
+            let intPart = firstDec === -1 ? cleaned : cleaned.slice(0, firstDec);
+            let decPart = firstDec === -1 ? null : cleaned.slice(firstDec + 1).split(DEC).join('').slice(0, 2);
+            intPart = intPart.replace(/^0+(?=\d)/, '');
+            let out = groupDigits(intPart);
+            if (decPart !== null) out += DEC + decPart;
+
+            if (out !== raw) {
+                input.value = out;
+                let pos = 0, seen = 0;
+                while (pos < out.length && seen < kept) { if (isKept(out[pos])) seen++; pos++; }
+                try { input.setSelectionRange(pos, pos); } catch (e) { /* not critical */ }
+            }
+        }
+        function currencyBlurHandler(event) {
+            const input = event.target;
+            const v = unformatCurrency(input.value);
+            input.value = v > 0 ? groupDigits(v.toFixed(2).split('.')[0]) + DEC + v.toFixed(2).split('.')[1] : '';
         }
 
-        // --- EVENT LISTENERS ---
+        // --- DOM ---
+        const form = $('tax-form'), resultsSection = $('results-section'), errorEl = $('error-message');
+        const salePriceInput = $('sale-price'), renditaInput = $('rendita-catastale');
+        const caparraInput = $('caparra'), accontiInput = $('acconti');
+        const hasPreliminaryCheck = $('has-preliminary');
+        let lastCalculation = null;
+
+        const checked = name => document.querySelector(`input[name="${name}"]:checked`);
+        const checkedLabel = name => checked(name).parentElement.textContent.trim();
+
+        function showError(message, field) {
+            errorEl.textContent = message; errorEl.classList.remove('hidden');
+            document.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+            if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
+        }
+        function clearError() {
+            errorEl.classList.add('hidden'); errorEl.textContent = '';
+            document.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+        }
+        function resetResults() { resultsSection.classList.remove('visible'); lastCalculation = null; }
+
         [salePriceInput, renditaInput, caparraInput, accontiInput].forEach(input => {
             input.addEventListener('input', currencyInputHandler);
             input.addEventListener('blur', currencyBlurHandler);
         });
-
         form.addEventListener('input', () => { clearError(); resetResults(); });
         form.addEventListener('change', () => { clearError(); resetResults(); });
-        
-        // --- UI LOGIC ---
+
         function updateUI() {
-            const sellerType = document.querySelector('input[name="seller"]:checked').value;
-            const vatRegime = document.querySelector('input[name="vat-regime"]:checked').value;
-            const baseCalcolo = document.querySelector('input[name="base-calcolo"]:checked').value;
-            
-            companyVatGroup.classList.toggle('hidden', sellerType !== 'company');
-            priceValueGroup.classList.toggle('hidden', sellerType !== 'private');
+            const seller = checked('seller').value;
+            const vatSale = seller === 'company' && checked('vat-regime').value === 'applicable';
+            const needRendita = seller === 'private' && checked('base-calcolo').value === 'prezzo-valore';
 
-            const isCompanyWithVat = sellerType === 'company' && vatRegime === 'applicable';
-            // Show Rendita group unless it's a VAT-applicable company sale
-            const showRendita = !isCompanyWithVat;
-            
-            renditaGroup.classList.toggle('hidden', !showRendita);
-            // Rendita input is required only if it's a private sale AND Prezzo-Valore is chosen
-            renditaInput.required = showRendita && baseCalcolo === 'prezzo-valore' && sellerType === 'private';
-            if (!showRendita) {
-                renditaInput.value = '';
-            }
-            
-            const showPreliminary = hasPreliminaryCheck.checked;
-            preliminaryFields.classList.toggle('hidden', !showPreliminary);
+            $('company-vat-group').classList.toggle('hidden', seller !== 'company');
+            $('price-value-group').classList.toggle('hidden', seller !== 'private');
+            $('rendita-group').classList.toggle('hidden', !needRendita);
+            if (!needRendita) renditaInput.value = '';
 
-            if (!showPreliminary) {
-                caparraInput.value = '';
-                accontiInput.value = '';
-            }
+            const showPrelim = hasPreliminaryCheck.checked;
+            $('preliminary-fields').classList.toggle('hidden', !showPrelim);
+            $('acconti-group').classList.toggle('hidden', vatSale);
+            if (vatSale) accontiInput.value = '';
+            if (!showPrelim) { caparraInput.value = ''; accontiInput.value = ''; }
         }
-
         document.querySelectorAll('input[name="seller"], input[name="vat-regime"], input[name="base-calcolo"], #has-preliminary').forEach(el => el.addEventListener('change', updateUI));
-        document.addEventListener('DOMContentLoaded', updateUI);
+        updateUI();
 
-        // --- CORE CALCULATION (UNCHANGED ITALIAN LOGIC) ---
+        // --- SUBMIT ---
+        form.addEventListener('submit', event => { event.preventDefault(); calculateTaxes(); });
+
         function calculateTaxes() {
             clearError();
-            
-            const sellerType = document.querySelector('input[name="seller"]:checked').value;
-            const isPrimaCasa = document.querySelector('input[name="prima-casa"]:checked').value === 'yes';
-            const baseCalcolo = document.querySelector('input[name="base-calcolo"]:checked').value;
-            const vatRegime = document.querySelector('input[name="vat-regime"]:checked').value;
-            const hasPreliminary = hasPreliminaryCheck.checked;
-
-            const salePrice = unformatCurrency(salePriceInput.value);
-            const renditaCatastale = unformatCurrency(renditaInput.value);
-            const caparra = unformatCurrency(caparraInput.value);
-            const acconti = unformatCurrency(accontiInput.value);
-
-            // --- Error messages in English ---
-            if (salePrice === 0) { showError("Please enter a valid Sale Price."); return; }
-            if (renditaInput.required && renditaCatastale === 0) { showError("Please enter the Land Registry Value (Rendita Catastale)."); return; }
-            if(hasPreliminary && caparra === 0 && acconti === 0) { showError("If including the preliminary contract, please enter a Deposit or Down Payment amount."); return; }
-
-            let impostaFissaPreliminare = 0, impostaPropPreliminare = 0, creditoDaPreliminare = 0;
-            
-            if(hasPreliminary) {
-                impostaFissaPreliminare = 200;
-                const isVatApplicable = sellerType === 'company' && vatRegime === 'applicable';
-                const baseProp = isVatApplicable ? caparra : caparra + acconti;
-                impostaPropPreliminare = baseProp * 0.005;
-                creditoDaPreliminare = impostaPropPreliminare;
-            }
-            
-            let impostaIVA = 0, impostaRegistroLorda = 0, impostaIpotecaria = 0, impostaCatastale = 0;
-            const isSubjectToRegistrationTax = sellerType === 'private' || (sellerType === 'company' && vatRegime === 'exempt');
-
-            if (isSubjectToRegistrationTax) {
-                // Prezzo-Valore calculation
-                let baseImponibile = (sellerType === 'private' && baseCalcolo === 'prezzo-valore') ? (renditaCatastale * 1.05 * (isPrimaCasa ? 110 : 120)) : salePrice;
-                const aliquotaRegistro = isPrimaCasa ? 0.02 : 0.09;
-                impostaRegistroLorda = Math.max(1000, baseImponibile * aliquotaRegistro);
-                impostaIpotecaria = 50;
-                impostaCatastale = 50;
-            } else { // Subject to VAT
-                impostaIVA = salePrice * (isPrimaCasa ? 0.04 : 0.10);
-                impostaRegistroLorda = 200;
-                impostaIpotecaria = 200;
-                impostaCatastale = 200;
-            }
-
-            const impostaRegistroNetta = Math.max(0, impostaRegistroLorda - creditoDaPreliminare);
-            const totalPreliminary = impostaFissaPreliminare + impostaPropPreliminare;
-            const totalFinalDeed = impostaIVA + impostaRegistroNetta + impostaIpotecaria + impostaCatastale;
-
-            lastCalculation = {
-                hasPreliminary,
-                impostaFissaPreliminare, impostaPropPreliminare, totalPreliminary,
-                impostaIVA, impostaRegistroLorda, creditoDaPreliminare, impostaRegistroNetta, impostaIpotecaria, impostaCatastale,
-                totalFinalDeed
+            const params = {
+                seller: checked('seller').value,
+                vatRegime: checked('vat-regime').value,
+                primaCasa: checked('prima-casa').value === 'yes',
+                base: checked('base-calcolo').value,
+                price: unformatCurrency(salePriceInput.value),
+                rendita: unformatCurrency(renditaInput.value),
+                hasPreliminary: hasPreliminaryCheck.checked,
+                caparra: unformatCurrency(caparraInput.value),
+                acconti: unformatCurrency(accontiInput.value)
             };
-            
+            const needRendita = params.seller === 'private' && params.base === 'prezzo-valore';
+
+            if (params.price <= 0) { showError(T.errPrice, salePriceInput); return; }
+            if (needRendita && params.rendita <= 0) { showError(T.errRendita, renditaInput); return; }
+            if (params.hasPreliminary && params.caparra <= 0 && params.acconti <= 0) { showError(T.errPrelim, caparraInput); return; }
+            if (params.hasPreliminary && params.caparra + params.acconti > params.price) { showError(T.errExceed, caparraInput); return; }
+
+            lastCalculation = Object.assign({}, computeTaxes(params), { params });
             displayResults(lastCalculation);
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            resultsSection.focus({ preventScroll: true });
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // --- RESULTS DISPLAY ---
-        function displayResults(calc) {
-            preliminaryResults.classList.toggle('hidden', !calc.hasPreliminary);
-            if (calc.hasPreliminary) {
-                document.getElementById('preliminary-fixed-result').textContent = CURRENCY_FORMATTER.format(calc.impostaFissaPreliminare);
-                document.getElementById('preliminary-prop-result').textContent = CURRENCY_FORMATTER.format(calc.impostaPropPreliminare);
-                document.getElementById('preliminary-total').textContent = CURRENCY_FORMATTER.format(calc.totalPreliminary);
+        function displayResults(c) {
+            $('final-deed-total').textContent = fmt(c.totalDeed);
+            $('iva-item').classList.toggle('hidden', !c.vatSale);
+            $('iva-result').textContent = fmt(c.iva);
+            $('registro-result').textContent = fmt(c.registroLordo);
+            $('registro-deduction-item').classList.toggle('hidden', c.creditApplied <= 0);
+            $('registro-deduction').textContent = '- ' + fmt(c.creditApplied);
+            $('ipotecaria-result').textContent = fmt(c.ipotecaria);
+            $('catastale-result').textContent = fmt(c.catastale);
+
+            $('preliminary-results').classList.toggle('hidden', !c.hasPreliminary);
+            if (c.hasPreliminary) {
+                $('preliminary-fixed-result').textContent = fmt(c.fixedPrelim);
+                $('preliminary-cap-result').textContent = fmt(c.capPrelim);
+                $('preliminary-acc-item').classList.toggle('hidden', c.vatSale);
+                $('preliminary-acc-result').textContent = fmt(c.accPrelim);
+                $('preliminary-total').textContent = fmt(c.totalPrelim);
+                $('grand-total').textContent = fmt(c.grandTotal);
             }
 
-            document.getElementById('iva-result').textContent = CURRENCY_FORMATTER.format(calc.impostaIVA);
-            document.getElementById('registro-result').textContent = CURRENCY_FORMATTER.format(calc.impostaRegistroLorda);
-            document.getElementById('registro-deduction').textContent = `- ${CURRENCY_FORMATTER.format(calc.creditoDaPreliminare)}`;
-            document.getElementById('registro-deduction-item').classList.toggle('hidden', !calc.hasPreliminary || calc.creditoDaPreliminare === 0);
-            document.getElementById('ipotecaria-result').textContent = CURRENCY_FORMATTER.format(calc.impostaIpotecaria);
-            document.getElementById('catastale-result').textContent = CURRENCY_FORMATTER.format(calc.impostaCatastale);
-            document.getElementById('final-deed-total').textContent = CURRENCY_FORMATTER.format(calc.totalFinalDeed);
+            const chartTotal = c.totalDeed || 1;
+            $('iva-bar').style.width = (c.iva / chartTotal * 100) + '%';
+            $('registro-bar').style.width = (c.registroNetto / chartTotal * 100) + '%';
+            $('ipotecaria-bar').style.width = (c.ipotecaria / chartTotal * 100) + '%';
+            $('catastale-bar').style.width = (c.catastale / chartTotal * 100) + '%';
 
-            const chartTotal = calc.impostaIVA + calc.impostaRegistroNetta + calc.impostaIpotecaria + calc.impostaCatastale || 1;
-            document.getElementById('iva-bar').style.width = `${(calc.impostaIVA / chartTotal) * 100}%`;
-            document.getElementById('registro-bar').style.width = `${(calc.impostaRegistroNetta / chartTotal) * 100}%`;
-            document.getElementById('ipotecaria-bar').style.width = `${(calc.impostaIpotecaria / chartTotal) * 100}%`;
-            document.getElementById('catastale-bar').style.width = `${(calc.impostaCatastale / chartTotal) * 100}%`;
-
-            resultsSection.style.display = 'block';
+            resultsSection.classList.add('visible');
         }
-        
-        // --- ACTION BUTTONS (Translated) ---
-        document.getElementById('whatsapp-btn').addEventListener('click', () => {
-             if (Object.keys(lastCalculation).length === 0) { showError("Please run a calculation first."); return; }
-             let summary = `Summary from the Giuliato&Battistin calculator:\n`;
-             summary += `- Final Tax Bill: *${CURRENCY_FORMATTER.format(lastCalculation.totalFinalDeed)}*\n`;
-             if(lastCalculation.hasPreliminary) summary += `- Preliminary Costs: *${CURRENCY_FORMATTER.format(lastCalculation.totalPreliminary)}*`;
-             const message = encodeURIComponent(`I'd like a more precise calculation for this estimate.\n\n${summary}`);
-             // Use the correct WhatsApp number from your user data
-             window.open(`https://api.whatsapp.com/send?phone=+390444525547&text=${message}`, '_blank');
+
+        // --- ACTIONS ---
+        $('whatsapp-btn').addEventListener('click', () => {
+            if (!lastCalculation) { showError(T.errCalcFirst); return; }
+            let summary = T.waIntro + '\n- ' + T.waDeed + ': *' + fmt(lastCalculation.totalDeed) + '*\n';
+            if (lastCalculation.hasPreliminary) summary += '- ' + T.waPrelim + ': *' + fmt(lastCalculation.totalPrelim) + '*';
+            const message = encodeURIComponent(T.waRequest + '\n\n' + summary);
+            window.open('https://api.whatsapp.com/send?phone=+390444525547&text=' + message, '_blank', 'noopener');
         });
-        
-        document.getElementById('pdf-btn').addEventListener('click', () => {
-            if (Object.keys(lastCalculation).length === 0) { showError("Please run a calculation to generate the PDF."); return; }
-            
-            const doc = new jsPDF();
+
+        $('pdf-btn').addEventListener('click', () => {
+            const c = lastCalculation;
+            if (!c) { showError(T.errPdfFirst); return; }
+            if (!window.jspdf) { showError(T.errPdfLib); return; }
+            const doc = new window.jspdf.jsPDF();
             const today = new Date().toLocaleDateString('en-US');
             let y = 20;
-
-            const writeHeader = () => {
-                doc.setFont('Helvetica', 'bold'); doc.setFontSize(16);
-                doc.text("Italy Property Purchase Tax Summary", 105, y, { align: 'center' }); y += 6;
-                doc.setFont('Helvetica', 'normal'); doc.setFontSize(10);
-                doc.text(`Date: ${today}`, 105, y, { align: 'center' }); y += 6;
-                doc.setLineWidth(0.5); doc.line(20, y, 190, y); y += 10;
-            };
 
             const writeSection = (title, data) => {
                 doc.setFontSize(12); doc.setFont('Helvetica', 'bold'); doc.text(title, 20, y); y += 8;
                 doc.setFont('Helvetica', 'normal'); doc.setFontSize(11);
                 data.forEach(item => {
-                    if (item.isDeduction) doc.setTextColor('#d97706');
+                    if (item.isDeduction) doc.setTextColor('#7A3412');
                     doc.text(item.label, 25, y);
-                    doc.text(item.value, 110, y, { align: 'right' });
+                    doc.text(item.value, 125, y, { align: 'right' });
                     doc.setTextColor('#000000');
                     y += 7;
                 });
             };
-            
-            writeHeader();
-            
-            const inputData = [
-                {label: "Seller Type:", value: document.querySelector('input[name="seller"]:checked+label').textContent},
-                {label: "'Prima Casa' Relief:", value: document.querySelector('input[name="prima-casa"]:checked+label').textContent},
-                {label: "Sale Price:", value: CURRENCY_FORMATTER.format(unformatCurrency(salePriceInput.value))},
-            ];
-            if(renditaInput.parentElement.parentElement.classList.contains('hidden') === false && renditaInput.value) {
-                inputData.push({label: "Land Registry Value:", value: CURRENCY_FORMATTER.format(unformatCurrency(renditaInput.value))});
-            }
-            if(document.querySelector('input[name="seller"]:checked').value === 'private') inputData.push({label: "Taxable Basis:", value: document.querySelector('input[name="base-calcolo"]:checked+label').textContent});
-            writeSection("Your Inputs:", inputData);
+            const total = (label, value) => {
+                y += 4; doc.setLineWidth(0.2); doc.line(20, y, 190, y); y += 8;
+                doc.setFont('Helvetica', 'bold'); doc.setFontSize(11);
+                doc.text(label, 25, y); doc.text(value, 125, y, { align: 'right' }); y += 7;
+            };
 
-            if(lastCalculation.hasPreliminary){
-                 y += 5;
-                 const prelimInputData = [
-                     {label: "Security Deposit (Caparra):", value: CURRENCY_FORMATTER.format(unformatCurrency(caparraInput.value))},
-                     {label: "Down Payments (Acconti):", value: CURRENCY_FORMATTER.format(unformatCurrency(accontiInput.value))}
-                 ];
-                 writeSection("Preliminary Contract Inputs:", prelimInputData);
-                 
-                 y += 5;
-                 const prelimResultsData = [
-                    {label: "Fixed Registration Tax:", value: CURRENCY_FORMATTER.format(lastCalculation.impostaFissaPreliminare)},
-                    {label: "Tax on Deposits (0.5%):", value: CURRENCY_FORMATTER.format(lastCalculation.impostaPropPreliminare)},
-                 ];
-                 writeSection("Preliminary Contract Costs:", prelimResultsData);
-                 y += 4; doc.setLineWidth(0.2); doc.line(20, y, 190, y); y+=8;
-                 doc.setFont('Helvetica', 'bold');
-                 doc.text("TOTAL PRELIMINARY COSTS:", 25, y); doc.text(CURRENCY_FORMATTER.format(lastCalculation.totalPreliminary), 110, y, {align: 'right'}); y += 7;
-            }
-            
-            y += 10;
-            const finalResultsData = [
-                {label: "VAT (IVA):", value: CURRENCY_FORMATTER.format(lastCalculation.impostaIVA)},
-                {label: "Registration Tax (gross):", value: CURRENCY_FORMATTER.format(lastCalculation.impostaRegistroLorda)},
+            doc.setFont('Helvetica', 'bold'); doc.setFontSize(16);
+            doc.text(T.pdfTitle, 105, y, { align: 'center' }); y += 6;
+            doc.setFont('Helvetica', 'normal'); doc.setFontSize(10);
+            doc.text(T.pdfDate + ': ' + today, 105, y, { align: 'center' }); y += 6;
+            doc.setLineWidth(0.5); doc.line(20, y, 190, y); y += 10;
+
+            const p = c.params;
+            const inputs = [
+                { label: T.pdfSeller + ':', value: checkedLabel('seller') },
+                { label: T.pdfPrima + ':', value: checkedLabel('prima-casa') },
+                { label: T.pdfPrice + ':', value: fmt(p.price) }
             ];
-            if(lastCalculation.creditoDaPreliminare > 0) finalResultsData.push({label: "Credit from preliminary:", value: `- ${CURRENCY_FORMATTER.format(lastCalculation.creditoDaPreliminare)}`, isDeduction: true});
-            finalResultsData.push(
-                {label: "Title Registry Tax:", value: CURRENCY_FORMATTER.format(lastCalculation.impostaIpotecaria)},
-                {label: "Land Registry Tax:", value: CURRENCY_FORMATTER.format(lastCalculation.impostaCatastale)}
-            );
-            writeSection("Final Deed Tax Breakdown:", finalResultsData);
-            
-            y += 4; doc.setLineWidth(0.2); doc.line(20, y, 190, y); y += 8;
-            doc.setFont('Helvetica', 'bold');
-            doc.text("TOTAL FINAL TAX BILL:", 25, y);
-            doc.text(CURRENCY_FORMATTER.format(lastCalculation.totalFinalDeed), 110, y, {align: 'right'});
-            
-            y = Math.max(y + 15, 240);
+            if (p.seller === 'company') inputs.splice(1, 0, { label: T.pdfVat + ':', value: checkedLabel('vat-regime') });
+            if (p.seller === 'private') inputs.push({ label: T.pdfBase + ':', value: checkedLabel('base-calcolo') });
+            if (p.seller === 'private' && p.base === 'prezzo-valore') inputs.push({ label: T.pdfRendita + ':', value: fmt(p.rendita) });
+            writeSection(T.pdfInputs, inputs);
+
+            if (c.hasPreliminary) {
+                y += 5;
+                const prelimInputs = [{ label: T.pdfCaparra + ':', value: fmt(p.caparra) }];
+                if (!c.vatSale) prelimInputs.push({ label: T.pdfAcconti + ':', value: fmt(p.acconti) });
+                writeSection(T.pdfPrelimInputs, prelimInputs);
+                y += 5;
+                const prelimRows = [
+                    { label: T.pdfPrelimFixed + ':', value: fmt(c.fixedPrelim) },
+                    { label: T.pdfPrelimCap + ':', value: fmt(c.capPrelim) }
+                ];
+                if (!c.vatSale) prelimRows.push({ label: T.pdfPrelimAcc + ':', value: fmt(c.accPrelim) });
+                writeSection(T.pdfPrelimCosts, prelimRows);
+                total(T.pdfPrelimTotal, fmt(c.totalPrelim));
+            }
+
+            y += 8;
+            const rows = [];
+            if (c.vatSale) rows.push({ label: T.pdfIva + ':', value: fmt(c.iva) });
+            rows.push({ label: T.pdfRegistro + ':', value: fmt(c.registroLordo) });
+            if (c.creditApplied > 0) rows.push({ label: T.pdfDeduction + ':', value: '- ' + fmt(c.creditApplied), isDeduction: true });
+            rows.push({ label: T.pdfIpo + ':', value: fmt(c.ipotecaria) }, { label: T.pdfCat + ':', value: fmt(c.catastale) });
+            writeSection(T.pdfDetail, rows);
+            total(T.pdfDeedTotal, fmt(c.totalDeed));
+            if (c.hasPreliminary) total(T.pdfGrandTotal, fmt(c.grandTotal));
+
+            y = Math.max(y + 12, 240);
             doc.setFontSize(9); doc.setFont('Helvetica', 'italic');
-            const disclaimerText = doc.splitTextToSize("Disclaimer: This calculation is an estimate and does not replace professional advice. For a precise calculation, you must consult an Italian notary ('Notaio') or a qualified professional. Giuliato&Battistin immobiliare assumes no liability for any inaccuracies.", 170);
-            doc.text(disclaimerText, 20, y); y += 20;
+            const disclaimer = doc.splitTextToSize(T.pdfDisclaimer, 170);
+            doc.text(disclaimer, 20, y); y += disclaimer.length * 4.5 + 8;
 
             doc.setLineWidth(0.5); doc.line(20, y, 190, y); y += 8;
             doc.setFont('Helvetica', 'bold'); doc.setFontSize(11);
-            doc.text("Giuliato&Battistin immobiliare", 105, y, { align: 'center' }); y += 6;
+            doc.text('Giuliato&Battistin immobiliare', 105, y, { align: 'center' }); y += 6;
             doc.setFont('Helvetica', 'normal'); doc.setFontSize(9);
-            doc.text("Corso SS. Felice e Fortunato n. 29, 36100 Vicenza, Italy", 105, y, { align: 'center' }); y += 6;
-            doc.text("info@giuliatobattistin.it | +39 0444 525447", 105, y, { align: 'center' });
+            doc.text('Corso SS. Felice e Fortunato n. 29, 36100 Vicenza', 105, y, { align: 'center' }); y += 6;
+            doc.text('info@giuliatobattistin.it | +39 0444 525447', 105, y, { align: 'center' });
 
-            doc.save('Italian-Tax-Summary-GiuliatoBattistin.pdf');
+            doc.save('Tax-Summary-GiuliatoBattistin.pdf');
         });
 
+        // --- Iframe height for the host page ---
+        (function () {
+            if (window.parent === window) return;
+            let last = 0;
+            const send = () => {
+                const height = Math.ceil(document.body.getBoundingClientRect().height);
+                if (height && height !== last) {
+                    last = height;
+                    window.parent.postMessage({ source: 'gb-calcolatore', type: 'height', height }, '*');
+                }
+            };
+            if ('ResizeObserver' in window) new ResizeObserver(send).observe(document.body);
+            window.addEventListener('load', send);
+            send();
+        })();
     </script>
 </body>
 </html>
